@@ -1,13 +1,12 @@
 from enum import Enum
 
+from PyQt5.QtGui import QColor, QPalette, QBrush
 from PyQt5.QtCore import pyqtSignal, QRect, QPoint, Qt, QSize
-from PyQt5.QtGui import QColor, QPalette, QBrush, QPixmap, QIcon
 from PyQt5.QtWidgets import QLabel, QRubberBand, QHBoxLayout, QMenu
 
-from src.bounding_box import BoundingBox
-from src.display_image_container import Utils
-from src.label_set import LabelSet
+from src.utils import Utils
 from src.mask_dialog import MaskDialog
+from src.bounding_box import BoundingBox
 
 
 class Mode(Enum):
@@ -41,11 +40,12 @@ class Label(Enum):
     LABEL5 = 'Pelvis'
     LABEL6 = 'Pneumonia'
     LABEL7 = 'Cancer Nodule'
+    LABEL8 = 'Tumor'
 
 
 class AppString(Enum):
-    #CHANGE_LABEL = 'Change Label...'
     APPLY_MASK = 'Наложить маску'
+    EDIT_MASK = 'Редактировать маску'
     DELETE = 'Удалить метку'
 
 
@@ -66,14 +66,15 @@ class Viewer(QLabel):
         self.__correctionMode = CorrectionMode.OTHER
         self.resizeMode = ResizeMode.OTHER
         self.label = Label.LABEL1
-        self.colours = [Qt.blue, Qt.yellow, Qt.darkMagenta, Qt.red, Qt.green, Qt.cyan, Qt.white] 
+        self.colours = [Qt.blue, Qt.yellow, Qt.darkMagenta, Qt.red, Qt.green, Qt.cyan, Qt.white, Qt.magenta] 
         self.colorTable = {Label.LABEL1: self.colours[0],
                            Label.LABEL2: self.colours[1],
                            Label.LABEL3: self.colours[2],
                            Label.LABEL4: self.colours[3],
                            Label.LABEL5: self.colours[4],
                            Label.LABEL6: self.colours[5],
-                           Label.LABEL7: self.colours[6]}
+                           Label.LABEL7: self.colours[6],
+                           Label.LABEL8: self.colours[7]}
         self.__mouseLineVisible = True
         self.__initialize_mouse_line()
         self.__shiftFlag = False
@@ -91,7 +92,7 @@ class Viewer(QLabel):
         self.__makeBoundingBox = False
         self.__correctionMode = CorrectionMode.OTHER
         self.resizeMode = ResizeMode.OTHER
-        self.label = Label.HEAD  # ИНИЦИАЛИЗИРОВАТЬ ПОЛЕ ПЕРВЫМ ЗНАЧЕНИЕМ СТРОКИ
+        self.label = Label.LABEL1
         self.__resized = False
 
     @property
@@ -122,7 +123,7 @@ class Viewer(QLabel):
         bndBox = []
 
         for box in self.__boxes:
-            bndBox.append([box.x(), box.y(), box.width(), box.height(), box.label])  # ИНИЦИАЛИЗИРОВАТЬ ПОЛЕМ
+            bndBox.append([box.x(), box.y(), box.width(), box.height(), box.label])
         return bndBox
 
     @property
@@ -145,7 +146,7 @@ class Viewer(QLabel):
         if QMouseEvent.button() == Qt.LeftButton:
             if self.__mode == Mode.LABELING:
                 self.origin = QMouseEvent.pos()
-                box = BoundingBox(QRubberBand.Line, self, self.label) # УСТАНОВИТЬ МЕТКУ
+                box = BoundingBox(QRubberBand.Line, self, self.label)
                 box.setGeometry(QRect(self.origin, QSize()))
                 box.geometry()
                 box.setPalette(self.__set_bounding_box_color())
@@ -266,8 +267,8 @@ class Viewer(QLabel):
         if selectedIdx >= 0:
             contextMenu = QMenu(self)
 
-            #contextMenu.addAction(AppString.CHANGE_LABEL.value)
             contextMenu.addAction(AppString.APPLY_MASK.value)
+            contextMenu.addAction(AppString.EDIT_MASK.value)
             contextMenu.addAction(AppString.DELETE.value)
 
             action = contextMenu.exec_(self.mapToGlobal(event.pos()))
@@ -276,20 +277,13 @@ class Viewer(QLabel):
                 if action.text() == AppString.DELETE.value:
                     self.remove_bounding_box(selectedIdx)
 
-                if action.text() == AppString.APPLY_MASK.value:
-                    self.maskDialog = MaskDialog(self)
+                if action.text() == AppString.EDIT_MASK.value:
+                    print(self.__boxes[selectedIdx].x(), self.__boxes[selectedIdx].x() + self.__boxes[selectedIdx].width())
+                    print(self.__boxes[selectedIdx].y(), self.__boxes[selectedIdx].y() + self.__boxes[selectedIdx].height())
+                    
+                    self.maskDialog = MaskDialog(self, self.__boxes[selectedIdx].x(), self.__boxes[selectedIdx].x() + self.__boxes[selectedIdx].width(),
+                                                 self.__boxes[selectedIdx].y(), self.__boxes[selectedIdx].y() + self.__boxes[selectedIdx].height())
                     self.maskDialog.show()
-
-                #if action.text() == AppString.CHANGE_LABEL.value:
-                #    labelMenu = QMenu(self)
-                #    for label in Label:
-                #        pixmap = QPixmap(12, 12)
-                #        pixmap.fill(QColor(self.colorTable[label]))
-                #        labelMenu.addAction(QIcon(pixmap), label.value)
-                #    labelMenuAction = labelMenu.exec_(self.mapToGlobal(event.pos()))
-                #    selectedBox = self.__boxes[selectedIdx]
-                #    selectedBox.label = Label(labelMenuAction.text())
-                #    selectedBox.setPalette(self.__set_bounding_box_color(Label(labelMenuAction.text())))
 
     def set_label(self, newLabel):
         self.label = Label(newLabel)
@@ -319,14 +313,14 @@ class Viewer(QLabel):
 
         for mouseLine in self.__mouseLines:
             mouseLine.setGeometry(QRect(QPoint(0, 0), QPoint(0, 0)))
-            mouseLine.setPalette(self.__set_bounding_box_color(Label.LABEL2)) #УСТАНОВИТЬ ВТОРОЕ ЗНАЧЕНИЕ СТРОКИ
+            mouseLine.setPalette(self.__set_bounding_box_color(Label.LABEL2))
             mouseLine.show()
 
-    def __set_bounding_box_color(self, label=None): # УСТАНОВИТЬ МЕТКУ
+    def __set_bounding_box_color(self, label=None):
         if label is None:
             label = self.label
 
-        color = QColor(self.colorTable[label])      # УСТАНОВИТЬ КЛАСС 
+        color = QColor(self.colorTable[label])
         palette = QPalette()
         color.setAlpha(80)
         palette.setBrush(QPalette.Highlight, QBrush(color))

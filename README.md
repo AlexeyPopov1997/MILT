@@ -1,7 +1,7 @@
 # MILT - Medical Images Labeling Tool
 
-Приложение для разметки медицинских изображений формата DICOM и сохранения данных, сгенерированных при разметке внутри метаданных DICOM.
-![MILT](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/icons/title.png?raw=true)
+Приложение для разметки медицинских изображений формата DICOM и сохранения аннотаций внутри метаданных аннотируемых файлов.
+![MILT](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/pictures/main.png?raw=true)
 
 ### Создание и установка виртуального окружения
 1. Я предлагаю создать окружение из файла `environment.yml` (**Необходимо изменить `prefix` в файле**):
@@ -25,16 +25,22 @@ conda env list
 
 1. Работать можно как и с единичным изображением формата DICOM, так и с сериями снимков DICOM.
 
-2. После того как открыто изображение или выбрано изображение из серии, нужно ввеси имя класса объекта поиска, выбрать его и выделить его на изображении:
-![labels](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/icons/labels.png?raw=true)
+2. После того как открыто изображение или выбрано изображение из серии, нужно ввеси имя класса объекта поиска, выбрать его и выделить его на изображении.
 
-3. Далее нужно нажать кнопку "Наложить маску". Уточнить маску, изменяя значения эрозии и дилатации. В итоге нажать "Наложить маску":
-![mask](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/icons/mask.png?raw=true)
+3. Далее нужно нажать кнопку "Наложить маску", после этого автоматически будет сгенерирована маска для выделенного объекта на изображении. Для уточнения полученной маски нужно нажать "Редактировать маску":
 
-4. Далее нужно сохранить обработанное изображение и перейтик следующему изображению, если необходимо.
+![mask](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/pictures/1.png?raw=true)
 
-5. Также, можно экспортировать сериализованные данные для решения задач **классификации**, **сегментации** и **обнаружения объектов**:
-![exports1](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/icons/export1.png?raw=true)
+Маска редактируется изменением ее темных и светлых областей:
 
-6. После этого открывается окно экпорта, в котором можно выбрать необходимые параметры и экспортировать данные в .pickle-файл:
-![exports2](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/icons/export2.png?raw=true)
+![editMask](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/pictures/2.png?raw=true)
+
+4. Далее нужно сохранить обработанное изображение и перейти к следующему изображению, если необходимо.
+
+5. Также, можно экспортировать аннотированные сериализованные данные в форматах **COCO**, **Pascal VOC** и **YOLO**:
+
+![export1](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/pictures/3.png?raw=true)
+
+6. После этого открывается окно экпорта, в котором можно выбрать необходимые параметры и экспортировать данные:
+
+![export2](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/pictures/4.png?raw=true)

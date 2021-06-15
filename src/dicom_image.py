@@ -1,5 +1,5 @@
-import pydicom
 import numpy as np
+import pydicom
 
 from pydicom.datadict import DicomDictionary, keyword_dict
 from pydicom.pixel_data_handlers.numpy_handler import pack_bits

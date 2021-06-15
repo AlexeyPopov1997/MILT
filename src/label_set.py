@@ -9,12 +9,3 @@ class LabelSet:
     def deleteFile():
         file = open('.temp/text.txt', 'w')
         file.write('')
-
-    @staticmethod
-    def getString12(index):
-        label_set = []
-        file = open('.temp/text.txt', 'r')
-        for line in file:
-            label_set.append(line)
-        return label_set[index]
-    

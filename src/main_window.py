@@ -1,29 +1,27 @@
 import os
-import sys
 from typing import List
 import SimpleITK as stk
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QGroupBox, QVBoxLayout, \
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtWidgets import QWidget, QGridLayout, QGroupBox, QVBoxLayout, \
                             QHBoxLayout, QSpacerItem, QSizePolicy, QLineEdit, QComboBox, \
-                            QGraphicsView, QListWidget, QLabel, QMenuBar, QMenu, QAction, QFileDialog, QListWidgetItem
-                                    
-from PyQt5.QtCore import QSize, QRect, Qt
-from PyQt5.QtGui import QFont, QPixmap, QImage
+                            QListWidget, QLabel, QMenu, QFileDialog, QListWidgetItem
 
+from src.utils import Utils
 from src.viewer import Viewer
-from src.dicom_image import DicomImage
-from src.display_image_container import Utils, DisplayImageContainer
-
 from src.label_set import LabelSet
+from src.dicom_image import DicomImage
 from src.export_data_dialog import ExportDataDialog
+from src.display_image_container import DisplayImageContainer
 
 
 class MainWindow:
     def __init__(self):
         super().__init__()
         self.resize(1150, 800)
-        self.setMinimumSize(QSize(860, 640))
-        self.setMaximumSize(QSize(860, 640))
+        self.setMinimumSize(QSize(880, 634))
+        self.setMaximumSize(QSize(880, 634))
         self.setWindowTitle("MILT.DICOM")
         self.allowImageType = '(*.dcm)'
 
@@ -36,7 +34,7 @@ class MainWindow:
         self.horizontalLayoutWorkingArea.addItem(spacerItem)
         # Line Edit
         self.lineEdit = QLineEdit(self.workingAreaGroupBox)
-        self.lineEdit.setMinimumSize(QSize(260, 30))
+        self.lineEdit.setMinimumSize(QSize(200, 30))
         self.lineEdit.setMaximumSize(QSize(260, 30))
         self.lineEdit.setStyleSheet("background-color: rgb(186, 189, 182);\n"
                                     "color: rgb(46, 52, 54);")
@@ -45,14 +43,15 @@ class MainWindow:
         self.horizontalLayoutWorkingArea.addWidget(self.lineEdit)
         # Combo Box
         self.comboBox = QComboBox(self.workingAreaGroupBox)
-        self.comboBox.setMinimumSize(QSize(270, 30))
-        self.comboBox.setMaximumSize(QSize(270, 30))
+        self.comboBox.setMinimumSize(QSize(200, 30))
         self.comboBox.setStyleSheet("background-color: rgb(186, 189, 182);\n"
                                     "color: rgb(46, 52, 54);")
         self.horizontalLayoutWorkingArea.addWidget(self.comboBox)
         self.verticalLayoutWorkingArea.addLayout(self.horizontalLayoutWorkingArea)
         # Work Area Graphics View
         self.graphicsView = Viewer(self)
+        self.graphicsView.setScaledContents(True)
+        self.graphicsView.setFocusPolicy(Qt.StrongFocus)
         self.graphicsView.setStyleSheet("background-color: rgb(136, 138, 133);")
         self.verticalLayoutWorkingArea.addWidget(self.graphicsView)
         self.gridLayoutMain.addWidget(self.workingAreaGroupBox, 0, 1, 2, 1)
@@ -60,8 +59,8 @@ class MainWindow:
     
     def buildImagesListArea(self):
         self.imagesListGroupBox = QGroupBox("Изображения серии", self.centralwidget)
-        self.imagesListGroupBox.setMinimumSize(QSize(280, 150))
-        self.imagesListGroupBox.setMaximumSize(QSize(280, 999999))
+        self.imagesListGroupBox.setMinimumSize(QSize(320, 150))
+        self.imagesListGroupBox.setMaximumSize(QSize(320, 999999))
         self.gridLayout = QGridLayout(self.imagesListGroupBox)
         self.listView = QListWidget(self.imagesListGroupBox)
         self.listView.setStyleSheet("background-color: rgb(186, 189, 182);\n"
@@ -73,8 +72,8 @@ class MainWindow:
 
     def buildLogoArea(self):
         self.logoAreaGroupBox = QGroupBox(self.centralwidget)
-        self.logoAreaGroupBox.setMinimumSize(QSize(280, 200))
-        self.logoAreaGroupBox.setMaximumSize(QSize(280, 200))
+        self.logoAreaGroupBox.setMinimumSize(QSize(320, 120))
+        self.logoAreaGroupBox.setMaximumSize(QSize(320, 120))
         self.verticalLayout = QVBoxLayout(self.logoAreaGroupBox)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QLabel(self.logoAreaGroupBox)
@@ -82,11 +81,48 @@ class MainWindow:
         self.verticalLayout.addWidget(self.label)
         self.gridLayoutMain.addWidget(self.logoAreaGroupBox, 1, 0, 1, 1)
 
+    
+    def buidMenuBar(self):
+        self.menuBar().setStyleSheet("background-color: rgb(85, 87, 83);\n"
+                                     "color: rgb(255, 255, 255);\n"
+                                     "font: 75 10pt bold \"Arial Narrow\";")
+                                     
+        self.fileMenu = QMenu('Файл', self)
+        self.fileMenu.setStyleSheet("background-color: rgb(85, 87, 83);\n"
+                                    "color: rgb(255, 255, 255);\n"
+                                    "font: 75 10pt bold \"Arial Narrow\";")
+
+        self.fileMenu.addAction("Открыть DICOM-файл", self.openFileDialogue)                          
+        self.fileMenu.addAction("Открыть серию", self.openFolder)
+        self.fileMenu.addAction("Сохранить DICOM-файл")
+        self.fileMenu.addAction("Настройки")
+
+        self.menuBar().addMenu(self.fileMenu)
+
+        self.toolsMenu = QMenu('Инструменты', self)
+        self.toolsMenu.setStyleSheet("background-color: rgb(85, 87, 83);\n"
+                                    "color: rgb(255, 255, 255);\n"
+                                    "font: 75 10pt bold \"Arial Narrow\";")
+        
+        self.toolsMenu.addAction("Экспорт данных в COCO", self.openExportDataDialog)
+        self.toolsMenu.addAction("Экспорт данных в Pascal VOC", self.openExportDataDialog)
+        self.toolsMenu.addAction("Экспорт данных в YOLO", self.openExportDataDialog)
+
+        self.menuBar().addMenu(self.toolsMenu)
+
+        self.helpMenu = QMenu('Помощь', self)
+        self.helpMenu.setStyleSheet("background-color: rgb(85, 87, 83);\n"
+                                    "color: rgb(255, 255, 255);\n"
+                                    "font: 75 10pt bold \"Arial Narrow\";")
+
+        self.helpMenu.addAction("Начало работы")
+        self.menuBar().addMenu(self.helpMenu)
+
 
     def setupUi(self):
         self.buidMenuBar()
         self.centralwidget = QWidget()
-        self.centralwidget.setStyleSheet("font: 75 10pt \"Umpush\";\n"
+        self.centralwidget.setStyleSheet("font: 75 12pt \"Arial Narrow\";\n"
                                          "border-color: rgb(85, 87, 83);\n"
                                          "color: rgb(255, 255, 255);\n"
                                          "background-color: rgb(85, 87, 83);")
@@ -105,59 +141,6 @@ class MainWindow:
         self.comboBox.currentTextChanged.connect(self.graphicsView.set_label)
         self.lineEdit.clear()
 
-
-class Application(QMainWindow, MainWindow):
-    dicomImage: DicomImage
-
-    def __init__(self):
-        super().__init__()
-        Utils.change_cursor(Qt.WaitCursor)
-        self.setupUi()
-        #self.buidMenuBar()
-        self.show()
-
-    def buidMenuBar(self):
-        self.menuBar().setStyleSheet("background-color: rgb(85, 87, 83);\n"
-                                     "color: rgb(255, 255, 255);\n"
-                                     "font: 75 10pt bold \"Umpush\";")
-                                     
-        self.fileMenu = QMenu('Файл', self)
-        self.fileMenu.setStyleSheet("background-color: rgb(85, 87, 83);\n"
-                                    "color: rgb(255, 255, 255);\n"
-                                    "font: 75 10pt bold \"Umpush\";")
-
-        self.fileMenu.addAction("Открыть DICOM-файл", self.openFileDialogue)                          
-        self.fileMenu.addAction("Открыть серию", self.openFolder)
-        self.fileMenu.addAction("Сохранить DICOM-файл")
-        self.fileMenu.addAction("Настройки")
-
-        self.menuBar().addMenu(self.fileMenu)
-
-        self.toolsMenu = QMenu('Инструменты', self)
-        self.toolsMenu.setStyleSheet("background-color: rgb(85, 87, 83);\n"
-                                    "color: rgb(255, 255, 255);\n"
-                                    "font: 75 10pt bold \"Umpush\";")
-        
-        self.toolsMenu.addAction("Экспорт сериализованного массива для задач классикации", self.openExportDataDialog)
-        self.toolsMenu.addAction("Экспорт сериализованного массива для задач обнаружения объектов", self.openExportDataDialog)
-        self.toolsMenu.addAction("Экспорт сериализованного массива для задач сегментации", self.openExportDataDialog)
-
-        self.menuBar().addMenu(self.toolsMenu)
-
-        self.helpMenu = QMenu('Помощь', self)
-        self.helpMenu.setStyleSheet("background-color: rgb(85, 87, 83);\n"
-                                    "color: rgb(255, 255, 255);\n"
-                                    "font: 75 10pt bold \"Umpush\";")
-
-        self.helpMenu.addAction("Начало работы")
-        self.menuBar().addMenu(self.helpMenu)
-
-    def initialize(self):
-        # self.labelComboBox.setCurrentIndex(0)
-        # self.change_box_num(0)
-        self.loadImage = None
-        self.dicomImage = None
-
     def openFileDialogue(self):
         imagePath, fileType = QFileDialog.getOpenFileName(self, 'Select Image', '',
                                                           'Image files {}'.format(self.allowImageType),
@@ -171,10 +154,34 @@ class Application(QMainWindow, MainWindow):
             rawImage = QImage('./.temp/temp.png')
 
             self.initialize()
-            # self.graphicsView.initialize()
+            self.graphicsView.initialize()
             self.loadImage = DisplayImageContainer(rawImage, imagePath)
             self.dicomImage = DicomImage(rawImage, imagePath)
             self.graphicsView.setPixmap(QPixmap.fromImage(rawImage.scaled(self.graphicsView.width(), self.graphicsView.height())))
+    
+    @property
+    def file_name(self):
+        return self._file_name
+
+    @file_name.setter
+    def file_name(self, value):
+        try:
+            self._file_name = value
+
+            if self._file_name != '':
+                img = stk.ReadImage(self._file_name)
+                img = stk.IntensityWindowing(img, -1000, 1000, 0, 255)
+                img = stk.Cast(img, stk.sitkUInt8)
+                stk.WriteImage(img, "./.temp/temp.png")
+                rawImage = QImage('./.temp/temp.png')
+
+                self.initialize()
+                self.loadImage = DisplayImageContainer(rawImage, self._file_name)
+                self.dicomImage = DicomImage(rawImage, self._file_name)
+                self.graphicsView.setPixmap(QPixmap.fromImage(rawImage.scaled(self.graphicsView.width(), self.graphicsView.height())))
+
+        except BaseException as exc:
+            print(exc)
 
     def openFolder(self):
         dialog = QFileDialog(self)
@@ -184,6 +191,7 @@ class Application(QMainWindow, MainWindow):
         if dialog.exec_():
             directory = str(dialog.selectedFiles()[0])
             self.loadFiles(Utils.dicomFilesInDir(directory))
+        print(self.graphicsView.size())
             
     def onFileItemChange(self):
         if not len(self.listView.selectedItems()):
@@ -206,36 +214,3 @@ class Application(QMainWindow, MainWindow):
     def openExportDataDialog(self):
         self.exportDataDialog = ExportDataDialog(self)
         self.exportDataDialog.show()
-
-    @property
-    def file_name(self):
-        return self._file_name
-
-    @file_name.setter
-    def file_name(self, value):
-        try:
-            self._file_name = value
-            # data = DicomData.from_files([self._file_name])
-
-            if self._file_name != '':
-                img = stk.ReadImage(self._file_name)
-                img = stk.IntensityWindowing(img, -1000, 1000, 0, 255)
-                img = stk.Cast(img, stk.sitkUInt8)
-                stk.WriteImage(img, "./.temp/temp.png")
-                rawImage = QImage('./.temp/temp.png')
-
-                self.initialize()
-                # self.graphicsView.initialize()
-                self.loadImage = DisplayImageContainer(rawImage, self._file_name)
-                self.dicomImage = DicomImage(rawImage, self._file_name)
-                self.graphicsView.setPixmap(QPixmap.fromImage(rawImage.scaled(self.graphicsView.width(), self.graphicsView.height())))
-
-        except BaseException as exc:
-            print(exc)
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    form = Application()
-    LabelSet.deleteFile()
-    sys.exit(app.exec_())
