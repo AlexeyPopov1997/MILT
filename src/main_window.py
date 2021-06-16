@@ -214,3 +214,4 @@ class MainWindow:
     def openExportDataDialog(self):
         self.exportDataDialog = ExportDataDialog(self)
         self.exportDataDialog.show()
+    

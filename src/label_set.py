@@ -9,3 +9,4 @@ class LabelSet:
     def deleteFile():
         file = open('.temp/text.txt', 'w')
         file.write('')
+        

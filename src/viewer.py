@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QLabel, QRubberBand, QHBoxLayout, QMenu
 from src.utils import Utils
 from src.mask_dialog import MaskDialog
 from src.bounding_box import BoundingBox
+from src.mask_generator import MaskGenerator
 
 
 class Mode(Enum):
@@ -278,12 +279,14 @@ class Viewer(QLabel):
                     self.remove_bounding_box(selectedIdx)
 
                 if action.text() == AppString.EDIT_MASK.value:
-                    print(self.__boxes[selectedIdx].x(), self.__boxes[selectedIdx].x() + self.__boxes[selectedIdx].width())
-                    print(self.__boxes[selectedIdx].y(), self.__boxes[selectedIdx].y() + self.__boxes[selectedIdx].height())
-                    
                     self.maskDialog = MaskDialog(self, self.__boxes[selectedIdx].x(), self.__boxes[selectedIdx].x() + self.__boxes[selectedIdx].width(),
                                                  self.__boxes[selectedIdx].y(), self.__boxes[selectedIdx].y() + self.__boxes[selectedIdx].height())
+                    MaskGenerator.edit_mask('/.temp/mask.png', None, None)
                     self.maskDialog.show()
+                
+                if action.text() == AppString.APPLY_MASK.value:
+                    MaskGenerator.create_mask('/.temp/temp.png')
+
 
     def set_label(self, newLabel):
         self.label = Label(newLabel)

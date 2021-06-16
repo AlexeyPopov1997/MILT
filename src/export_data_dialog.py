@@ -67,3 +67,4 @@ class ExportDataDialog(QtWidgets.QDialog):
 
     def export(self):
         self.close()
+        

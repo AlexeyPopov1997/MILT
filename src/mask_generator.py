@@ -30,3 +30,4 @@ class MaskGenerator:
             erosion = morphology.erosion(mask, np.ones([erosion_kernel_val], [erosion_kernel_val]))
             dilation = morphology.dilation(erosion, np.ones([dilation_kernel_val], [dilation_kernel_val]))
             return measure.label(dilation)
+            

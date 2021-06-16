@@ -8,6 +8,7 @@ from src.label_set import LabelSet
 from src.dicom_image import DicomImage
 from src.main_window import MainWindow
 
+
 class Application(QMainWindow, MainWindow):
     dicomImage: DicomImage
 

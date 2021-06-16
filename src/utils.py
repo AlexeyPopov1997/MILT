@@ -229,3 +229,4 @@ class Utils:
                     Utils.build_YOLO_annotation(body, img, 0x6030, label)
         
             body.close()
+            

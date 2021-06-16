@@ -66,11 +66,5 @@ class MaskDialog(QtWidgets.QDialog):
         dilatationValue = self.horizontalSlider_2.value()
         self.label_3.setText(str(dilatationValue))
 
-    def push(self):
-        if int(self.horizontalSlider.value()) > 0:
-            self.label_5.setPixmap(QPixmap('./.temp/2.png').scaled(350, 350))
-        if int(self.horizontalSlider_2.value()) > 0:
-            self.label_5.setPixmap(QPixmap('./.temp/3.png').scaled(350, 350))
-
     def exit(self):
         self.close()

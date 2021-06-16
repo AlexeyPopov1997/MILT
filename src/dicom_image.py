@@ -93,3 +93,4 @@ class DicomImage:
         self.image.OverlayData = packedBytes
         self.image[groups[label], 0x3000].VR = 'OW'
         return self.image
+    
