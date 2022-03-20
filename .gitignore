@@ -1,0 +1,5 @@
+__pycache__/
+.temp/
+.vscode/
+srs/__pycache__/
+Test Images/
