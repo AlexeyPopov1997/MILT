@@ -1,9 +1,8 @@
 # MILT - Medical Images Labeling Tool
 
-Приложение для разметки медицинских изображений формата DICOM и сохранения аннотаций внутри метаданных аннотируемых файлов.
-![MILT](https://github.com/AlexeyPopov1997/DICOMLabeling/blob/master/pictures/main.png?raw=true)
+Application for labeling medical images in DICOM format and saving annotations inside the metadata of labeled files.
 
-### Создание и установка виртуального окружения
+### Creating and installing a virtual environment
 1. Я предлагаю создать окружение из файла `environment.yml` (**Необходимо изменить `prefix` в файле**):
 ```sh
 conda env create -f environment.yml
