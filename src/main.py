@@ -1,5 +1,6 @@
 import sys
 import platform
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import (QCoreApplication, QPropertyAnimation, QDate, QDateTime, QMetaObject, QObject, QPoint, QRect, QSize, QTime, QUrl, Qt, QEvent)
 from PyQt5.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter, QPixmap, QRadialGradient)
@@ -21,7 +22,7 @@ class MainWindow(QMainWindow):
         # Move window
         def moveWindow(event):
             # Restore before move
-            if UIFunctions.returnStatus() == 1:
+            if UIFunctions.return_status() == 1:
                 UIFunctions.maximize_restore(self)
 
             # If left click move window
@@ -37,7 +38,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QtGui.QIcon('./icons/taskbar_logo.png'))
 
         # Set GUI definitions
-        UIFunctions.uiDefinitions(self)
+        UIFunctions.ui_definitions(self)
 
         # Show main window
         self.show()
@@ -48,6 +49,6 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    sys.exit(app.exec_())
+    application = QApplication(sys.argv)
+    main_window = MainWindow()
+    sys.exit(application.exec_())

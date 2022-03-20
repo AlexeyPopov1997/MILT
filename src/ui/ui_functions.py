@@ -29,7 +29,7 @@ class UIFunctions(MainWindow):
             self.ui.central_widget_frame.setStyleSheet(StyleSheet.get_maximize_windwow_style())
 
     # GUI Definitions
-    def uiDefinitions(self):
+    def ui_definitions(self):
         # Remove standard border
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -59,5 +59,5 @@ class UIFunctions(MainWindow):
         self.sizegrip.setToolTip("Resize Window")
 
     # Return status if windows is maximixe or restore
-    def returnStatus():
+    def return_status():
         return GLOBAL_STATE
