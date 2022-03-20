@@ -1,0 +1,8 @@
+name: MILT
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.7
+  - pyqt=5.9.2
+prefix: '/home/MILT'
